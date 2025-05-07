@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/authContext";
 import { DashboardProvider } from "./context/dashboardContext";
 
+import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Organizations from "./pages/Organizations";
 import Servers from "./pages/Servers";
@@ -26,7 +27,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Login />} />
+              <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/organizations" element={<Organizations />} />
