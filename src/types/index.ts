@@ -42,6 +42,7 @@ export type Attendance = {
   userId: string;
   userName: string;
   userAddress: string;
+  email?: string; // Added email as optional property
   checkInTime: string;
   status: 'PRESENT' | 'LATE' | 'ABSENT';
 };
