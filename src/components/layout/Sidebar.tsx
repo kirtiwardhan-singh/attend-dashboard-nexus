@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/authContext';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 type SidebarLinkProps = {
   href: string;
@@ -39,11 +40,14 @@ export default function Sidebar() {
 
   return (
     <aside className="h-screen w-64 flex flex-col bg-sidebar fixed left-0 top-0 border-r border-sidebar-border">
-      <div className="p-4 border-b border-sidebar-border flex items-center">
-        <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center mr-3">
-          <span className="font-bold text-white">D</span>
+      <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
+        <div className="flex items-center">
+          <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center mr-3">
+            <span className="font-bold text-white">D</span>
+          </div>
+          <h1 className="font-bold text-sidebar-foreground text-lg">D-Attend</h1>
         </div>
-        <h1 className="font-bold text-sidebar-foreground text-lg">D-Attend</h1>
+        <ThemeToggle />
       </div>
 
       <div className="flex-1 overflow-auto py-4 px-2 space-y-1">
