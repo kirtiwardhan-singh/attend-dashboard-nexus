@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/authContext';
 import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { ProfileMenu } from '@/components/profile/ProfileMenu';
+import { useTheme } from '@/context/themeContext';
 
 type SidebarLinkProps = {
   href: string;
@@ -32,7 +33,8 @@ function SidebarLink({ href, icon, children, isActive }: SidebarLinkProps) {
 
 export default function Sidebar() {
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -47,16 +49,11 @@ export default function Sidebar() {
           </div>
           <h1 className="font-bold text-sidebar-foreground text-lg">D-Attend</h1>
         </div>
-        <ThemeToggle />
       </div>
 
       <div className="flex-1 overflow-auto py-4 px-2 space-y-1">
         <SidebarLink href="/dashboard" icon={<svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>} isActive={isActive("/dashboard")}>
           Dashboard
-        </SidebarLink>
-        
-        <SidebarLink href="/organizations" icon={<svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 9V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3" /><path d="M6 8h.01" /><path d="M10 8h.01" /><path d="M14 8h.01" /><path d="M18 8h.01" /><rect x="3" y="9" width="18" height="10" rx="2" /></svg>} isActive={isActive("/organizations")}>
-          Organizations
         </SidebarLink>
         
         <SidebarLink href="/servers" icon={<svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2" /><rect x="2" y="14" width="20" height="8" rx="2" ry="2" /><line x1="6" y1="6" x2="6.01" y2="6" /><line x1="6" y1="18" x2="6.01" y2="18" /></svg>} isActive={isActive("/servers")}>
@@ -69,7 +66,10 @@ export default function Sidebar() {
       </div>
 
       <div className="p-4 border-t border-sidebar-border">
-        <div className="flex items-center mb-4">
+        <div 
+          className="flex items-center cursor-pointer hover:bg-sidebar-accent/50 p-2 rounded-md"
+          onClick={() => setProfileOpen(true)}
+        >
           <div className="w-10 h-10 rounded-full bg-sidebar-accent flex items-center justify-center">
             <span className="font-semibold text-sidebar-foreground">
               {user?.address ? user.address.slice(2, 4).toUpperCase() : '??'}
@@ -84,20 +84,9 @@ export default function Sidebar() {
             </p>
           </div>
         </div>
-        
-        <Button 
-          variant="ghost" 
-          className="w-full justify-start gap-2 text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
-          onClick={logout}
-        >
-          <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-          <span>Logout</span>
-        </Button>
       </div>
+
+      <ProfileMenu open={profileOpen} onOpenChange={setProfileOpen} />
     </aside>
   );
 }

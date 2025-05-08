@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -11,12 +10,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDashboard } from '@/context/dashboardContext';
 import { Attendance } from '@/types';
 import { formatDate } from '@/lib/mockData';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "@/components/ui/sonner";
+
+// Form schema for adding an attendee
+const attendeeFormSchema = z.object({
+  userName: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  userAddress: z.string().min(10, { message: "Please enter a valid wallet address." }),
+  email: z.string().email({ message: "Please enter a valid email address." }).optional().or(z.literal('')),
+});
 
 export default function ServerDetails() {
   const { serverId } = useParams<{ serverId: string }>();
   const navigate = useNavigate();
   const { servers, attendanceSessions, isLoading } = useDashboard();
   const [activeTab, setActiveTab] = useState("attendance");
+  const [addAttendeeOpen, setAddAttendeeOpen] = useState(false);
+  const [editServerOpen, setEditServerOpen] = useState(false);
   
   // Find the current server
   const server = servers.find(server => server.id === serverId);
@@ -26,7 +41,7 @@ export default function ServerDetails() {
     session => session.serverId === serverId
   );
   
-  // Mock attendees data for demonstration
+  // Attendees data with mock data for demonstration
   const [attendees, setAttendees] = useState<Attendance[]>([
     {
       id: "att1",
@@ -34,6 +49,7 @@ export default function ServerDetails() {
       userId: "user1",
       userName: "Alex Johnson",
       userAddress: "0x1234...5678",
+      email: "alex@example.com",
       checkInTime: new Date().toISOString(),
       status: "PRESENT"
     },
@@ -43,6 +59,7 @@ export default function ServerDetails() {
       userId: "user2",
       userName: "Taylor Swift",
       userAddress: "0x8765...4321",
+      email: "taylor@example.com",
       checkInTime: new Date().toISOString(),
       status: "PRESENT"
     },
@@ -52,11 +69,28 @@ export default function ServerDetails() {
       userId: "user3",
       userName: "Jamie Smith",
       userAddress: "0x2468...1357",
+      email: "jamie@example.com",
       checkInTime: new Date().toISOString(),
       status: "LATE"
     }
   ]);
+
+  // For classroom servers, we'll need periods/sessions
+  const [periods, setPeriods] = useState([
+    { id: "period1", name: "Morning Session", time: "09:00 - 10:30", date: new Date().toISOString() },
+    { id: "period2", name: "Mid-day Session", time: "11:00 - 12:30", date: new Date().toISOString() },
+    { id: "period3", name: "Afternoon Session", time: "14:00 - 15:30", date: new Date().toISOString() },
+  ]);
   
+  const form = useForm<z.infer<typeof attendeeFormSchema>>({
+    resolver: zodResolver(attendeeFormSchema),
+    defaultValues: {
+      userName: "",
+      userAddress: "",
+      email: "",
+    },
+  });
+
   const handleMarkAttendance = (attendeeId: string) => {
     setAttendees(prev => 
       prev.map(att => 
@@ -65,13 +99,36 @@ export default function ServerDetails() {
           : att
       )
     );
+    toast.success("Attendance marked successfully");
+  };
+
+  const handleMarkAllAttendance = () => {
+    setAttendees(prev => 
+      prev.map(att => ({ ...att, status: "PRESENT" }))
+    );
+    toast.success("All attendees marked as present");
   };
   
   const handleIssueCredential = (attendeeId: string) => {
-    // This would connect to the credential issuing system
-    console.log(`Issuing credential to attendee ${attendeeId}`);
-    // Show a toast notification
-    // This would typically send the request to your backend
+    toast.success("Credential issued successfully");
+  };
+
+  const onAddAttendee = (values: z.infer<typeof attendeeFormSchema>) => {
+    const newAttendee: Attendance = {
+      id: `att${Math.floor(Math.random() * 1000)}`,
+      sessionId: serverSessions[0]?.id || "session1",
+      userId: `user${Math.floor(Math.random() * 1000)}`,
+      userName: values.userName,
+      userAddress: values.userAddress,
+      email: values.email || undefined,
+      checkInTime: new Date().toISOString(),
+      status: "PRESENT",
+    };
+    
+    setAttendees([...attendees, newAttendee]);
+    form.reset();
+    setAddAttendeeOpen(false);
+    toast.success(`${values.userName} added successfully`);
   };
   
   if (isLoading) {
@@ -107,7 +164,16 @@ export default function ServerDetails() {
             {server.type} Server
           </p>
         </div>
-        <Button onClick={() => navigate('/servers')} variant="outline">Back to Servers</Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setEditServerOpen(true)} variant="outline">
+            <svg className="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+              <path d="m15 5 4 4"/>
+            </svg>
+            Edit Server
+          </Button>
+          <Button onClick={() => navigate('/servers')} variant="outline">Back to Servers</Button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -192,15 +258,92 @@ export default function ServerDetails() {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-2 w-full max-w-md mb-6">
+        <TabsList className="grid w-full max-w-md mb-6" style={{ gridTemplateColumns: server.type === 'CLASSROOM' ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)' }}>
           <TabsTrigger value="attendance">Attendance</TabsTrigger>
+          {server.type === 'CLASSROOM' && <TabsTrigger value="timetable">Timetable</TabsTrigger>}
           <TabsTrigger value="session">Start Session</TabsTrigger>
         </TabsList>
         
         <TabsContent value="attendance" className="mt-0">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Attendance Records</CardTitle>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleMarkAllAttendance}
+                >
+                  Mark All Present
+                </Button>
+                <Dialog open={addAttendeeOpen} onOpenChange={setAddAttendeeOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm">
+                      <svg className="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <line x1="19" y1="8" x2="19" y2="14" />
+                        <line x1="16" y1="11" x2="22" y2="11" />
+                      </svg>
+                      Add Attendee
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add New Attendee</DialogTitle>
+                    </DialogHeader>
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(onAddAttendee)} className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="userName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="John Doe" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="userAddress"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Wallet Address</FormLabel>
+                              <FormControl>
+                                <Input placeholder="0x..." {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email (Optional)</FormLabel>
+                              <FormControl>
+                                <Input type="email" placeholder="email@example.com" {...field} />
+                              </FormControl>
+                              <FormDescription>
+                                Used for notifications about attendance and credentials.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <DialogFooter>
+                          <Button type="submit">Add Attendee</Button>
+                        </DialogFooter>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </CardHeader>
             <CardContent>
               {attendees.length > 0 ? (
@@ -210,7 +353,7 @@ export default function ServerDetails() {
                       <TableRow>
                         <TableHead>Name</TableHead>
                         <TableHead>Wallet Address</TableHead>
-                        <TableHead>Check-in Time</TableHead>
+                        {server.type === 'EVENT' && <TableHead>Check-in Time</TableHead>}
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
@@ -220,7 +363,7 @@ export default function ServerDetails() {
                         <TableRow key={attendee.id}>
                           <TableCell className="font-medium">{attendee.userName}</TableCell>
                           <TableCell>{attendee.userAddress}</TableCell>
-                          <TableCell>{formatDate(attendee.checkInTime)}</TableCell>
+                          {server.type === 'EVENT' && <TableCell>{formatDate(attendee.checkInTime)}</TableCell>}
                           <TableCell>
                             {attendee.status === 'PRESENT' ? (
                               <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-50">
@@ -239,19 +382,26 @@ export default function ServerDetails() {
                           <TableCell className="text-right space-x-2">
                             {attendee.status !== 'PRESENT' && (
                               <Button 
-                                variant="secondary" 
+                                variant="ghost" 
                                 size="sm"
                                 onClick={() => handleMarkAttendance(attendee.id)}
+                                className="h-8 w-8 p-0"
                               >
-                                Mark Present
+                                <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M20 6 9 17l-5-5" />
+                                </svg>
                               </Button>
                             )}
                             <Button 
-                              variant="outline" 
+                              variant="ghost" 
                               size="sm"
                               onClick={() => handleIssueCredential(attendee.id)}
+                              className="h-8 w-8 p-0"
                             >
-                              Issue Certificate
+                              <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="8" r="7" />
+                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+                              </svg>
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -269,13 +419,63 @@ export default function ServerDetails() {
                   </svg>
                   <h3 className="font-medium text-lg mb-2">No attendance records</h3>
                   <p className="text-muted-foreground">
-                    Start a new attendance session to record attendees.
+                    Start a new attendance session or add attendees manually.
                   </p>
                 </div>
               )}
             </CardContent>
           </Card>
         </TabsContent>
+
+        {server.type === 'CLASSROOM' && (
+          <TabsContent value="timetable" className="mt-0">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Class Schedule</CardTitle>
+                <Button size="sm" variant="outline">
+                  <svg className="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  Add Period
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="border rounded-md">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Period Name</TableHead>
+                        <TableHead>Time</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {periods.map((period) => (
+                        <TableRow key={period.id}>
+                          <TableCell className="font-medium">{period.name}</TableCell>
+                          <TableCell>{period.time}</TableCell>
+                          <TableCell>{formatDate(period.date)}</TableCell>
+                          <TableCell className="text-right space-x-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                            >
+                              Take Attendance
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
         
         <TabsContent value="session" className="mt-0">
           <Card>
@@ -351,6 +551,64 @@ export default function ServerDetails() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Server Dialog */}
+      <Dialog open={editServerOpen} onOpenChange={setEditServerOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Server</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <form className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none" htmlFor="server-name">
+                  Server Name
+                </label>
+                <Input id="server-name" defaultValue={server.name} />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none" htmlFor="server-type">
+                  Server Type
+                </label>
+                <select 
+                  id="server-type" 
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground"
+                  defaultValue={server.type}
+                >
+                  <option value="CLASSROOM">Classroom</option>
+                  <option value="EVENT">Event</option>
+                  <option value="MEETING">Meeting</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none" htmlFor="verification-method">
+                  Verification Method
+                </label>
+                <select 
+                  id="verification-method" 
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground"
+                  defaultValue={server.verificationMethod}
+                >
+                  <option value="QR">QR Code</option>
+                  <option value="LOCATION">Location</option>
+                  <option value="PASSWORD">Password</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditServerOpen(false)}>Cancel</Button>
+            <Button onClick={() => {
+              toast.success("Server updated successfully");
+              setEditServerOpen(false);
+            }}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
