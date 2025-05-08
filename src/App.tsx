@@ -12,7 +12,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Organizations from "./pages/Organizations";
 import Servers from "./pages/Servers";
-import Attendance from "./pages/Attendance";
+import ServerDetails from "./pages/ServerDetails";
 import Credentials from "./pages/Credentials";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -34,7 +34,7 @@ const App = () => (
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/organizations" element={<Organizations />} />
                 <Route path="/servers" element={<Servers />} />
-                <Route path="/attendance" element={<Attendance />} />
+                <Route path="/servers/:serverId" element={<ServerDetails />} />
                 <Route path="/credentials" element={<Credentials />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

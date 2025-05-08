@@ -63,10 +63,6 @@ export default function Sidebar() {
           Servers
         </SidebarLink>
         
-        <SidebarLink href="/attendance" icon={<svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>} isActive={isActive("/attendance")}>
-          Attendance
-        </SidebarLink>
-        
         <SidebarLink href="/credentials" icon={<svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.3 8.93 9 11.6l.81 2.93-2.31.78-1.33-2.24-2.86.48-.34-2.5 2.33-1.23L4.97 7.43l2.31-.78 1.33 2.24 2.86-.48.34 2.5-2.33 1.23 2.82 1.79Z" /><path d="M15.34 17.52a3 3 0 1 0 2.82-5.2 3 3 0 0 0-2.82 5.2Z" /><path d="m17 22-3-3" /><path d="m14 6 3-3" /><path d="m11 9 2-2" /></svg>} isActive={isActive("/credentials")}>
           Credentials
         </SidebarLink>

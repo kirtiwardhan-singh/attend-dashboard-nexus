@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,8 @@ import { Server } from '@/types';
 import { formatDate } from '@/lib/mockData';
 
 export default function ServerList() {
-  const { servers, selectedOrg, isLoading, startAttendanceSession } = useDashboard();
+  const { servers, selectedOrg, isLoading } = useDashboard();
+  const navigate = useNavigate();
   
   // Filter servers by selected organization
   const filteredServers = servers.filter(
@@ -67,8 +69,8 @@ export default function ServerList() {
     }
   };
   
-  const handleStartSession = (serverId: string) => {
-    startAttendanceSession(serverId);
+  const handleViewServerDetails = (serverId: string) => {
+    navigate(`/servers/${serverId}`);
   };
   
   if (isLoading) {
@@ -122,7 +124,7 @@ export default function ServerList() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {filteredServers.map((server) => (
-        <Card key={server.id}>
+        <Card key={server.id} className="cursor-pointer hover:border-primary transition-colors" onClick={() => handleViewServerDetails(server.id)}>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 rounded-md bg-primary/10">
@@ -138,14 +140,17 @@ export default function ServerList() {
           </CardContent>
           <CardFooter>
             <Button 
-              className="w-full gap-2" 
-              onClick={() => handleStartSession(server.id)}
+              className="w-full gap-2"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click from triggering
+                handleViewServerDetails(server.id);
+              }}
             >
               <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/>
                 <polygon points="10 8 16 12 10 16 10 8"/>
               </svg>
-              Start Attendance Session
+              View Attendance
             </Button>
           </CardFooter>
         </Card>
