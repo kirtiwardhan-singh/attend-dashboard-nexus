@@ -20,7 +20,6 @@ export type Server = {
   name: string;
   type: 'CLASSROOM' | 'EVENT' | 'MEETING';
   organizationId: string;
-  verificationMethod: 'QR' | 'LOCATION' | 'PASSWORD';
   createdAt: string;
 };
 
