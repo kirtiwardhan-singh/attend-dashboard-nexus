@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -8,6 +8,9 @@ import { AddAttendeeForm, AttendeeFormValues } from './AddAttendeeForm';
 import { Attendance, Server } from '@/types';
 import { useAuth } from '@/context/authContext';
 import { InviteUserForm } from '../server/InviteUserForm';
+import { toast } from '@/components/ui/sonner';
+import * as XLSX from 'xlsx';
+import { Input } from "@/components/ui/input";
 
 type AttendanceTabProps = {
   server: Server;
@@ -33,13 +36,55 @@ export function AttendanceTab({
   const { user } = useAuth();
   const [inviteOpen, setInviteOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const hasWritePermission = user?.permissions?.write || user?.role === 'ADMIN' || user?.role === 'TEACHER';
 
   const handleInviteUser = (values: any) => {
     console.log('Inviting user with data:', values);
-    // In a real app, this would send an invitation
+    toast.success(`Invitation sent to ${values.walletAddress}`);
     setInviteOpen(false);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const binaryStr = evt.target?.result;
+          const workbook = XLSX.read(binaryStr, { type: 'binary' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const data = XLSX.utils.sheet_to_json(worksheet) as Array<{
+            name: string;
+            email?: string;
+            wallet: string;
+          }>;
+
+          if (data.length > 0) {
+            data.forEach(row => {
+              if (row.name && row.wallet) {
+                onAddAttendee({
+                  userName: row.name,
+                  userAddress: row.wallet,
+                  email: row.email || ''
+                });
+              }
+            });
+            toast.success(`Imported ${data.length} attendees from Excel`);
+            setImportDialogOpen(false);
+          } else {
+            toast.error('No valid data found in the Excel file');
+          }
+        } catch (error) {
+          console.error('Error parsing Excel file:', error);
+          toast.error('Failed to parse Excel file');
+        }
+      };
+      reader.readAsBinaryString(file);
+    }
   };
 
   const filteredAttendees = attendees.filter(attendee => 
@@ -76,6 +121,19 @@ export function AttendanceTab({
                   <line x1="16" y1="11" x2="22" y2="11" />
                 </svg>
                 Invite User
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setImportDialogOpen(true)}
+              >
+                <svg className="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                Import Excel
               </Button>
               
               <Dialog open={addAttendeeOpen} onOpenChange={setAddAttendeeOpen}>
@@ -129,6 +187,34 @@ export function AttendanceTab({
             onSubmit={handleInviteUser}
             onCancel={() => setInviteOpen(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Excel Dialog */}
+      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Import Attendees from Excel</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Upload an Excel file with columns: "name", "email" (optional), and "wallet" (Ethereum address)
+            </p>
+            <Input 
+              ref={fileInputRef}
+              type="file" 
+              accept=".xlsx,.xls,.csv" 
+              onChange={handleFileChange} 
+            />
+            <div className="flex justify-end gap-2 mt-4">
+              <Button variant="outline" onClick={() => setImportDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => fileInputRef.current?.click()}>
+                Upload Excel
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </Card>

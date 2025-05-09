@@ -7,6 +7,7 @@ import { Attendance } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 import { ServerHeader } from '@/components/server-details/ServerHeader';
 import { ServerStats } from '@/components/server-details/ServerStats';

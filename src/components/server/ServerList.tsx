@@ -1,158 +1,111 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useDashboard } from '@/context/dashboardContext';
-import { Server } from '@/types';
-import { formatDate } from '@/lib/mockData';
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChatBubbleIcon, CalendarIcon, GlobeIcon } from "@radix-ui/react-icons";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ServerList() {
   const { servers, selectedOrg, isLoading } = useDashboard();
   const navigate = useNavigate();
-  
-  // Filter servers by selected organization
-  const filteredServers = servers.filter(
-    server => !selectedOrg || server.organizationId === selectedOrg.id
-  );
-  
-  const getServerIcon = (type: Server['type']) => {
-    switch (type) {
-      case 'CLASSROOM':
-        return (
-          <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/>
-            <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/>
-            <path d="M12 3v6"/>
-          </svg>
-        );
-      case 'EVENT':
-        return (
-          <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 8c0 2.5-2.5 5-6 8-3.5-3-6-5.5-6-8a6 6 0 0 1 12 0Z"/>
-            <circle cx="12" cy="8" r="2"/>
-          </svg>
-        );
-      case 'MEETING':
-        return (
-          <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 21h10"/>
-            <path d="M10 21v-4"/>
-            <path d="M14 21v-4"/>
-            <path d="M4 3h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2Z"/>
-            <path d="M12 17h0"/>
-          </svg>
-        );
-      default:
-        return (
-          <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
-            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
-            <line x1="6" y1="6" x2="6.01" y2="6"/>
-            <line x1="6" y1="18" x2="6.01" y2="18"/>
-          </svg>
-        );
-    }
-  };
-  
-  const getVerificationMethodBadge = (method: Server['verificationMethod']) => {
-    switch (method) {
-      case 'QR':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 hover:bg-blue-50">QR Code</Badge>;
-      case 'LOCATION':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-50">Location</Badge>;
-      case 'PASSWORD':
-        return <Badge variant="outline" className="bg-amber-50 text-amber-700 hover:bg-amber-50">Password</Badge>;
-      default:
-        return null;
-    }
-  };
-  
-  const handleViewServerDetails = (serverId: string) => {
-    navigate(`/servers/${serverId}`);
-  };
-  
+
+  // If loading, show skeleton UI
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(3)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader className="pb-2">
-              <div className="h-6 bg-muted rounded w-24 mb-1"></div>
-              <div className="h-4 bg-muted rounded w-32"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-4 bg-muted rounded w-full mb-2"></div>
-              <div className="h-4 bg-muted rounded w-2/3"></div>
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Card key={i} className="overflow-hidden cursor-pointer">
+            <CardContent className="p-0">
+              <div className="h-40 bg-muted relative">
+                <Skeleton className="h-full w-full" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent text-white">
+                  <Skeleton className="h-4 w-3/4 bg-white/30 mb-1" />
+                  <Skeleton className="h-3 w-1/2 bg-white/30" />
+                </div>
+              </div>
             </CardContent>
-            <CardFooter>
-              <div className="h-9 bg-muted rounded w-full"></div>
-            </CardFooter>
           </Card>
         ))}
       </div>
-    );
+    )
   }
   
-  if (filteredServers.length === 0) {
+  // If no organization selected
+  if (!selectedOrg) {
     return (
-      <Card className="text-center border-dashed">
-        <CardHeader>
-          <CardTitle>No servers found</CardTitle>
-          <CardDescription>
-            {selectedOrg 
-              ? `No servers have been created for ${selectedOrg.name} yet.`
-              : 'Select an organization or create a new server to get started.'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <svg className="w-12 h-12 mx-auto text-muted-foreground mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
-            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
-            <line x1="6" y1="6" x2="6.01" y2="6"/>
-            <line x1="6" y1="18" x2="6.01" y2="18"/>
-          </svg>
-          <p className="text-sm text-muted-foreground">
-            Servers are used to manage attendance sessions.
-          </p>
-        </CardContent>
-      </Card>
-    );
+      <div className="text-center py-10">
+        <h3 className="text-lg font-medium mb-2">Select an organization to view servers</h3>
+        <p className="text-muted-foreground">No organization is currently selected</p>
+      </div>
+    )
+  }
+
+  // Filter servers by selected organization
+  const orgServers = servers.filter(server => server.organizationId === selectedOrg.id);
+
+  // If no servers for this organization
+  if (orgServers.length === 0) {
+    return (
+      <div className="text-center py-10">
+        <h3 className="text-lg font-medium mb-2">No servers found</h3>
+        <p className="text-muted-foreground">Create your first server to get started</p>
+      </div>
+    )
+  }
+
+  const getServerIcon = (type: string) => {
+    switch (type) {
+      case 'CLASSROOM':
+        return <CalendarIcon className="h-6 w-6 text-green-500" />;
+      case 'EVENT':
+        return <GlobeIcon className="h-6 w-6 text-purple-500" />;
+      case 'MEETING':
+        return <ChatBubbleIcon className="h-6 w-6 text-blue-500" />;
+      default:
+        return <CalendarIcon className="h-6 w-6" />;
+    }
   }
   
+  const getServerTypeLabel = (type: string) => {
+    switch (type) {
+      case 'CLASSROOM':
+        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Classroom</Badge>;
+      case 'EVENT':
+        return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">Event</Badge>;
+      case 'MEETING':
+        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Meeting</Badge>;
+      default:
+        return <Badge variant="outline">Unknown</Badge>;
+    }
+  }
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {filteredServers.map((server) => (
-        <Card key={server.id} className="cursor-pointer hover:border-primary transition-colors" onClick={() => handleViewServerDetails(server.id)}>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between mb-2">
-              <div className="p-2 rounded-md bg-primary/10">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+      {orgServers.map(server => (
+        <Card 
+          key={server.id} 
+          className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-300"
+          onClick={() => navigate(`/servers/${server.id}`)}
+        >
+          <CardContent className="p-0">
+            <div className="h-40 bg-muted relative">
+              <div className={`absolute inset-0 ${server.type === 'CLASSROOM' ? 'bg-green-100' : server.type === 'EVENT' ? 'bg-purple-100' : 'bg-blue-100'} opacity-80`}></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 {getServerIcon(server.type)}
               </div>
-              {getVerificationMethodBadge(server.verificationMethod)}
+              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent text-white">
+                <h3 className="font-medium truncate">{server.name}</h3>
+                <div className="flex items-center space-x-2 mt-1">
+                  {getServerTypeLabel(server.type)}
+                  <span className="text-xs text-white/70">
+                    Created {new Date(server.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
             </div>
-            <CardTitle>{server.name}</CardTitle>
-            <CardDescription>{server.type}</CardDescription>
-          </CardHeader>
-          <CardContent className="pb-2 text-sm text-muted-foreground">
-            Created {formatDate(server.createdAt)}
           </CardContent>
-          <CardFooter>
-            <Button 
-              className="w-full gap-2"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent card click from triggering
-                handleViewServerDetails(server.id);
-              }}
-            >
-              <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polygon points="10 8 16 12 10 16 10 8"/>
-              </svg>
-              View Attendance
-            </Button>
-          </CardFooter>
         </Card>
       ))}
     </div>
