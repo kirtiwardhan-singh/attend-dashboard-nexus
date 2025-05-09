@@ -1,4 +1,3 @@
-
 import { DashboardStats, Organization, Server, AttendanceSession, Credential } from '@/types';
 
 export const getMockDashboardStats = (): DashboardStats => {
@@ -81,7 +80,6 @@ export const getMockServers = (): Server[] => {
       name: 'Blockchain 101',
       type: 'CLASSROOM',
       organizationId: 'org-1',
-      verificationMethod: 'QR',
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 25).toISOString(),
     },
     {
@@ -89,7 +87,6 @@ export const getMockServers = (): Server[] => {
       name: 'Smart Contracts Workshop',
       type: 'CLASSROOM',
       organizationId: 'org-1',
-      verificationMethod: 'PASSWORD',
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 20).toISOString(),
     },
     {
@@ -97,7 +94,6 @@ export const getMockServers = (): Server[] => {
       name: 'Crypto Economics Seminar',
       type: 'EVENT',
       organizationId: 'org-1',
-      verificationMethod: 'LOCATION',
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 18).toISOString(),
     },
     {
@@ -105,7 +101,6 @@ export const getMockServers = (): Server[] => {
       name: 'Solidity Masterclass',
       type: 'CLASSROOM',
       organizationId: 'org-2',
-      verificationMethod: 'QR',
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14).toISOString(),
     },
     {
@@ -113,7 +108,6 @@ export const getMockServers = (): Server[] => {
       name: 'Blockchain Security',
       type: 'CLASSROOM',
       organizationId: 'org-2',
-      verificationMethod: 'QR',
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10).toISOString(),
     },
     {
@@ -121,7 +115,6 @@ export const getMockServers = (): Server[] => {
       name: 'Weekly Dev Meeting',
       type: 'MEETING',
       organizationId: 'org-3',
-      verificationMethod: 'PASSWORD',
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString(),
     },
     {
@@ -129,7 +122,6 @@ export const getMockServers = (): Server[] => {
       name: 'Hackathon Planning',
       type: 'MEETING',
       organizationId: 'org-3',
-      verificationMethod: 'PASSWORD',
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
     },
     {
@@ -137,7 +129,6 @@ export const getMockServers = (): Server[] => {
       name: 'DeFi Summit',
       type: 'EVENT',
       organizationId: 'org-2',
-      verificationMethod: 'LOCATION',
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString(),
     },
   ];

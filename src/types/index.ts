@@ -1,3 +1,4 @@
+
 export type User = {
   id: string;
   address: string;
@@ -47,7 +48,7 @@ export type Attendance = {
   userId: string;
   userName: string;
   userAddress: string;
-  email?: string; // Added email as optional property
+  email?: string;
   checkInTime: string;
   status: 'PRESENT' | 'LATE' | 'ABSENT';
 };
@@ -80,4 +81,29 @@ export type DashboardStats = {
     date: string;
     count: number;
   }>;
+};
+
+export type ServerInvite = {
+  id: string;
+  serverId: string;
+  walletAddress: string;
+  role: 'ADMIN' | 'USER' | 'TEACHER' | 'EVENT_MANAGER';
+  permissions: {
+    read: boolean;
+    write: boolean;
+  };
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  createdAt: string;
+};
+
+export type NFTCredential = {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  recipientAddress: string;
+  recipientName: string;
+  issuerName: string;
+  issuedAt: string;
+  type: 'ATTENDANCE' | 'PARTICIPATION' | 'ACHIEVEMENT';
 };

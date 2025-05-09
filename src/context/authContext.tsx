@@ -1,7 +1,13 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@/types';
 import { toast } from '@/components/ui/sonner';
+
+// Add TypeScript interface for the window object with ethereum
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
 
 interface AuthContextType {
   user: User | null;

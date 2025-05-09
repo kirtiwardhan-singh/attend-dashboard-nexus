@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { DashboardStats, Organization, Server, AttendanceSession, Credential } from '@/types';
 import { useAuth } from './authContext';
@@ -18,7 +17,7 @@ interface DashboardContextType {
   isLoading: boolean;
   refreshData: () => Promise<void>;
   createOrganization: (name: string, description?: string) => Promise<void>;
-  createServer: (name: string, type: Server['type'], orgId: string, verificationMethod: Server['verificationMethod']) => Promise<void>;
+  createServer: (name: string, type: Server['type'], orgId: string) => Promise<void>;
   startAttendanceSession: (serverId: string) => Promise<void>;
 }
 
@@ -91,7 +90,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
-  const createServer = async (name: string, type: Server['type'], orgId: string, verificationMethod: Server['verificationMethod']) => {
+  const createServer = async (name: string, type: Server['type'], orgId: string) => {
     try {
       // Simulate API call
       const newServer: Server = {
@@ -99,7 +98,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         name,
         type,
         organizationId: orgId,
-        verificationMethod,
         createdAt: new Date().toISOString(),
       };
       

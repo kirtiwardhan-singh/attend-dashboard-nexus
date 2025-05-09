@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -33,21 +32,6 @@ export function EditServerForm({ server, onCancel, onSave }: EditServerFormProps
           <option value="CLASSROOM">Classroom</option>
           <option value="EVENT">Event</option>
           <option value="MEETING">Meeting</option>
-        </select>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium leading-none" htmlFor="verification-method">
-          Verification Method
-        </label>
-        <select 
-          id="verification-method" 
-          className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground"
-          defaultValue={server.verificationMethod}
-        >
-          <option value="QR">QR Code</option>
-          <option value="LOCATION">Location</option>
-          <option value="PASSWORD">Password</option>
         </select>
       </div>
 

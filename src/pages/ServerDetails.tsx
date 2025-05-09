@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -6,7 +7,6 @@ import { Attendance } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 import { ServerHeader } from '@/components/server-details/ServerHeader';
 import { ServerStats } from '@/components/server-details/ServerStats';
@@ -15,11 +15,14 @@ import { ClassroomTimetable } from '@/components/server-details/ClassroomTimetab
 import { StartSessionView } from '@/components/server-details/StartSessionView';
 import { EditServerForm } from '@/components/server-details/EditServerForm';
 import { AttendeeFormValues } from '@/components/server-details/AddAttendeeForm';
+import { useAuth } from '@/context/authContext';
 
 export default function ServerDetails() {
   const { serverId } = useParams<{ serverId: string }>();
   const navigate = useNavigate();
   const { servers, attendanceSessions, isLoading } = useDashboard();
+  const { user } = useAuth();
+  
   const [activeTab, setActiveTab] = useState("attendance");
   const [addAttendeeOpen, setAddAttendeeOpen] = useState(false);
   const [editServerOpen, setEditServerOpen] = useState(false);
@@ -73,15 +76,15 @@ export default function ServerDetails() {
     { id: "period3", name: "Afternoon Session", time: "14:00 - 15:30", date: new Date().toISOString() },
   ]);
 
-  const handleMarkAttendance = (attendeeId: string) => {
+  const handleMarkAttendance = (attendeeId: string, status: Attendance['status']) => {
     setAttendees(prev => 
       prev.map(att => 
         att.id === attendeeId 
-          ? { ...att, status: "PRESENT" } 
+          ? { ...att, status } 
           : att
       )
     );
-    toast.success("Attendance marked successfully");
+    toast.success(`Attendance status updated to ${status}`);
   };
 
   const handleMarkAllAttendance = () => {
@@ -92,7 +95,8 @@ export default function ServerDetails() {
   };
   
   const handleIssueCredential = (attendeeId: string) => {
-    toast.success("Credential issued successfully");
+    // In a real app, this would call an API to issue an NFT to the blockchain
+    toast.success("NFT credential issued successfully");
   };
 
   const onAddAttendee = (values: AttendeeFormValues) => {
