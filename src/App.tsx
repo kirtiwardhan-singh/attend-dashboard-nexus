@@ -15,6 +15,8 @@ import Servers from "./pages/Servers";
 import ServerDetails from "./pages/ServerDetails";
 import Credentials from "./pages/Credentials";
 import Login from "./pages/Login";
+import EmailLogin from "./pages/EmailLogin";
+import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/email-login" element={<EmailLogin />} />
+                <Route path="/signup" element={<Signup />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/servers" element={<Servers />} />
                 <Route path="/servers/:serverId" element={<ServerDetails />} />

@@ -1,10 +1,16 @@
-
 export type User = {
   id: string;
   address: string;
   name?: string;
+  email?: string;
   avatar?: string;
-  role: 'ADMIN' | 'USER';
+  role: 'ADMIN' | 'USER' | 'TEACHER' | 'EVENT_MANAGER';
+  organizationId?: string;
+  organizationName?: string;
+  permissions?: {
+    read: boolean;
+    write: boolean;
+  };
 };
 
 export type Organization = {

@@ -24,10 +24,10 @@ const Index = () => {
             <span className="text-2xl font-bold">D-Attend</span>
           </div>
           <div className="hidden md:flex gap-4">
-            <Button variant="ghost" onClick={() => navigate('/login')}>Login</Button>
-            <Button onClick={() => navigate('/login')}>Get Started</Button>
+            <Button variant="ghost" onClick={() => navigate('/email-login')}>Login</Button>
+            <Button onClick={() => navigate('/signup')}>Sign Up</Button>
           </div>
-          <Button className="md:hidden" onClick={() => navigate('/login')}>Login</Button>
+          <Button className="md:hidden" onClick={() => navigate('/email-login')}>Login</Button>
         </nav>
 
         <div className="flex flex-col md:flex-row items-center justify-between py-16">
@@ -40,11 +40,11 @@ const Index = () => {
               Securely track attendance and issue verifiable credentials using blockchain technology.
             </p>
             <div className="flex gap-4">
-              <Button size="lg" onClick={() => navigate('/login')}>
-                Start for Free
+              <Button size="lg" onClick={() => navigate('/signup')}>
+                Sign Up Free
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate('/login')}>
-                Learn More
+              <Button size="lg" variant="outline" onClick={() => navigate('/email-login')}>
+                Login
               </Button>
             </div>
           </div>
@@ -127,7 +127,7 @@ const Index = () => {
           <p className="text-xl text-muted-foreground mb-8 max-w-md mx-auto">
             Join the future of attendance tracking with D-Attend.
           </p>
-          <Button size="lg" onClick={() => navigate('/login')}>
+          <Button size="lg" onClick={() => navigate('/signup')}>
             Sign Up Now
           </Button>
         </div>
